@@ -6,12 +6,18 @@ import (
 )
 
 func Genjwt(id int, user string, is_admin bool) (string, error) {
-	token := jwt.New(jwt.SigningMethodHS256)
-	claims := token.Claims.(jwt.MapClaims)
+	key, err := jwt.ParseRSAPrivateKeyFromPEM(configs.JwtPrKey())
+	if err != nil {
+		return "", err
+	}
+	claims := make(jwt.MapClaims)
 	claims["authorized"] = true
 	claims["id"] = id
 	claims["user"] = user
 	claims["is_admin"] = is_admin
-	jwtoken, err := token.SignedString(configs.Jwtconfig())
-	return jwtoken, err
+	token, err := jwt.NewWithClaims(jwt.SigningMethodRS256, claims).SignedString(key)
+	if err != nil {
+		return "", err
+	}
+	return token, nil
 }

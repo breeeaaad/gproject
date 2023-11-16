@@ -12,12 +12,17 @@ func (h *Handlers) Auth(c *gin.Context) {
 		c.JSON(401, gin.H{"msg": err})
 		return
 	}
+	key, err := jwt.ParseECPublicKeyFromPEM(configs.JwtPubKey())
+	if err != nil {
+		c.JSON(401, gin.H{"msg": "Invalid public key"})
+		return
+	}
 	token, err := jwt.Parse(cookie, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
 			c.JSON(401, gin.H{"msg": "Unexpected signing method"})
 			return nil, nil
 		}
-		return configs.Jwtconfig(), nil
+		return key, nil
 	})
 	if err != nil {
 		c.JSON(401, gin.H{"msg": err})
