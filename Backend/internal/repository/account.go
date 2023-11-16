@@ -5,20 +5,21 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func (r *Repository) Check(user helpers.Account) (int, string, bool, error) {
+func (r *Repository) Check(user helpers.Account) (int, string, bool, string, error) {
 	var (
 		id       int
 		usern    string
 		hash     string
 		is_admin bool
+		totp     string
 	)
-	if err := r.conn.QueryRow(r.context, "select id,user,hash,is_admin from Account where user=$1", user.User).Scan(&id, &usern, &hash, &is_admin); err != nil {
-		return 0, "", false, err
+	if err := r.conn.QueryRow(r.context, "select id,user,hash,is_admin,2fa from Account where user=$1", user.User).Scan(&id, &usern, &hash, &is_admin, &totp); err != nil {
+		return 0, "", false, "", err
 	}
 	if err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(user.Password)); err != nil {
-		return 0, "", false, err
+		return 0, "", false, "", err
 	}
-	return id, usern, is_admin, nil
+	return id, usern, is_admin, totp, nil
 }
 
 func (r *Repository) Add(user helpers.Account) error {

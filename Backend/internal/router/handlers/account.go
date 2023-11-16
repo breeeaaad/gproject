@@ -1,8 +1,11 @@
 package handlers
 
 import (
+	"time"
+
 	"github.com/breeeaaad/gproject/internal/helpers"
 	"github.com/gin-gonic/gin"
+	"github.com/xlzd/gotp"
 )
 
 func (h *Handlers) Login(c *gin.Context) {
@@ -11,10 +14,17 @@ func (h *Handlers) Login(c *gin.Context) {
 		c.JSON(400, gin.H{"msg": err})
 		return
 	}
-	id, usern, is_admin, err := h.s.Check(user)
+	id, usern, is_admin, token, err := h.s.Check(user)
 	if err != nil {
 		c.JSON(400, gin.H{"msg": err})
 		return
+	}
+	if token != "" {
+		totp := gotp.NewDefaultTOTP(token)
+		if !totp.Verify(user.Totp, time.Now().Unix()) {
+			c.JSON(400, gin.H{"msg": "Invalid auth key"})
+			return
+		}
 	}
 	jwt, err := helpers.Genjwt(id, usern, is_admin)
 	if err != nil {
