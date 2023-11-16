@@ -14,7 +14,7 @@ func (h *Handlers) Auth(c *gin.Context) {
 	}
 	key, err := jwt.ParseECPublicKeyFromPEM(configs.JwtPubKey())
 	if err != nil {
-		c.JSON(401, gin.H{"msg": "Invalid public key"})
+		c.JSON(401, gin.H{"msg": err})
 		return
 	}
 	token, err := jwt.Parse(cookie, func(token *jwt.Token) (interface{}, error) {

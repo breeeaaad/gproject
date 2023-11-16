@@ -5,8 +5,10 @@ CREATE TABLE Account(
     user VARCHAR(50) UNIQUE not null,
     hash varchar(200) not null,
     registrated_at TIMESTAMP with time zone DEFAULT now(),
-    is_admin BOOLEAN DEFAULT false
+    is_admin BOOLEAN DEFAULT false,
+    2fa CHAR(16) UNIQUE
 );
+CREATE INDEX user on Account using hash (user);  
 -- +goose StatementEnd
 
 -- +goose Down

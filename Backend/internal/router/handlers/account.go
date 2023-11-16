@@ -18,7 +18,7 @@ func (h *Handlers) Login(c *gin.Context) {
 	}
 	jwt, err := helpers.Genjwt(id, usern, is_admin)
 	if err != nil {
-		c.JSON(500, gin.H{"msg": "Несгенерировался токен"})
+		c.JSON(500, gin.H{"msg": err})
 		return
 	}
 	c.SetCookie("jwt", jwt, 3600, "/", "localhost", true, true)
