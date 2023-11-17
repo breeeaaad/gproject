@@ -1,22 +1,19 @@
 package configs
 
-import (
-	"log"
-	"os"
+import "os"
 
-	"github.com/joho/godotenv"
-)
-
-func JwtPubKey() []byte {
-	if err := godotenv.Load(); err != nil {
-		log.Fatal("Error loading .env file")
+func JwtPubKey() ([]byte, error) {
+	pubKey, err := os.ReadFile("jwtRS256/jwtRS256.key.pub")
+	if err != nil {
+		return nil, err
 	}
-	return []byte(os.Getenv("publicKey"))
+	return pubKey, nil
 }
 
-func JwtPrKey() []byte {
-	if err := godotenv.Load(); err != nil {
-		log.Fatal("Error loading .env file")
+func JwtPrvKey() ([]byte, error) {
+	prvKey, err := os.ReadFile("jwtRS256/jwtRS256.key")
+	if err != nil {
+		return nil, err
 	}
-	return []byte(os.Getenv("privateKey"))
+	return prvKey, err
 }

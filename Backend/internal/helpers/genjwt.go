@@ -6,7 +6,11 @@ import (
 )
 
 func Genjwt(id int, user string, is_admin bool) (string, error) {
-	key, err := jwt.ParseRSAPrivateKeyFromPEM(configs.JwtPrKey())
+	prvKey, err := configs.JwtPrvKey()
+	if err != nil {
+		return "", err
+	}
+	key, err := jwt.ParseRSAPrivateKeyFromPEM(prvKey)
 	if err != nil {
 		return "", err
 	}

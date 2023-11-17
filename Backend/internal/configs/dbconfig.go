@@ -16,9 +16,9 @@ var (
 
 const (
 	defaultPostgresUser     = "postgres"
-	defaultPostgresPassword = "12345"
-	defaultPostgresHost     = "postgres"
-	defaultPostgresDB       = "dynamic-segmentation"
+	defaultPostgresPassword = ""
+	defaultPostgresHost     = "localhost"
+	defaultPostgresDB       = "gproject"
 	defaultPostgresPort     = "5432"
 )
 

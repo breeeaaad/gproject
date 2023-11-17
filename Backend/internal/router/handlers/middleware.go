@@ -12,7 +12,12 @@ func (h *Handlers) Auth(c *gin.Context) {
 		c.JSON(401, gin.H{"msg": err})
 		return
 	}
-	key, err := jwt.ParseECPublicKeyFromPEM(configs.JwtPubKey())
+	pubKey, err := configs.JwtPubKey()
+	if err != nil {
+		c.JSON(401, gin.H{"msg": err})
+		return
+	}
+	key, err := jwt.ParseRSAPublicKeyFromPEM(pubKey)
 	if err != nil {
 		c.JSON(401, gin.H{"msg": err})
 		return

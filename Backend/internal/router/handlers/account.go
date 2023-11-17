@@ -19,8 +19,8 @@ func (h *Handlers) Login(c *gin.Context) {
 		c.JSON(400, gin.H{"msg": err})
 		return
 	}
-	if token != "" {
-		totp := gotp.NewDefaultTOTP(token)
+	if token != nil {
+		totp := gotp.NewDefaultTOTP(token.(string))
 		if !totp.Verify(user.Totp, time.Now().Unix()) {
 			c.JSON(400, gin.H{"msg": "Invalid auth key"})
 			return
@@ -31,7 +31,7 @@ func (h *Handlers) Login(c *gin.Context) {
 		c.JSON(500, gin.H{"msg": err})
 		return
 	}
-	c.SetCookie("jwt", jwt, 3600, "/", "localhost", true, true)
+	c.SetCookie("jwt", jwt, 3600, "/", "localhost", false, true)
 }
 
 func (h *Handlers) Registration(c *gin.Context) {
