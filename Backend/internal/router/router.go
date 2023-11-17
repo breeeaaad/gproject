@@ -13,7 +13,7 @@ func Router(h *handlers.Handlers) {
 		auth.POST("/login", h.Login)
 		authorized := auth.Group("/main", h.Auth)
 		{
-			authorized.POST("/2fa", h.TOTP)
+			authorized.PUT("/2fa", h.TOTP)
 		}
 	}
 	r.Run()
