@@ -6,7 +6,7 @@ CREATE TABLE Account(
     hash varchar(200) not null,
     registrated_at TIMESTAMP with time zone DEFAULT now(),
     is_admin BOOLEAN DEFAULT false,
-    tfa CHAR(16) UNIQUE
+    tfa CHAR(26) UNIQUE
 );
 CREATE INDEX username on Account using hash (username);  
 -- +goose StatementEnd
