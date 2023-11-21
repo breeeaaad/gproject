@@ -11,12 +11,12 @@ import (
 func (h *Handlers) Login(c *gin.Context) {
 	var user helpers.Account
 	if err := c.BindJSON(&user); err != nil {
-		c.JSON(400, gin.H{"msg": err})
+		c.JSON(400, gin.H{"msg": err.Error()})
 		return
 	}
 	id, usern, is_admin, token, err := h.s.Check(user)
 	if err != nil {
-		c.JSON(400, gin.H{"msg": err})
+		c.JSON(400, gin.H{"msg": err.Error()})
 		return
 	}
 	if token != nil {
@@ -26,12 +26,13 @@ func (h *Handlers) Login(c *gin.Context) {
 			return
 		}
 	}
-	jwt, err := helpers.Genjwt(id, usern, is_admin)
+	access, refresh, err := h.s.Genjwt(id, usern, is_admin)
 	if err != nil {
-		c.JSON(500, gin.H{"msg": err})
+		c.JSON(500, gin.H{"msg": err.Error()})
 		return
 	}
-	c.SetCookie("jwt", jwt, 3600, "/", "localhost", false, true)
+	c.SetCookie("refresh", refresh, 60*60*24*7, "/main", "localhost", false, true)
+	c.JSON(200, gin.H{"access": access})
 }
 
 func (h *Handlers) Registration(c *gin.Context) {

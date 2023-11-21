@@ -9,3 +9,7 @@ type Account struct {
 type Totp struct {
 	Token string `uri:"token" binding:"required"`
 }
+
+type Request struct {
+	Access string `json:"access" binding:"required"`
+}

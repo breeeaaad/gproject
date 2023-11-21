@@ -8,7 +8,7 @@ CREATE TABLE Account(
     is_admin BOOLEAN DEFAULT false,
     tfa CHAR(26) UNIQUE
 );
-CREATE INDEX username on Account using hash (username);  
+CREATE INDEX username on Account using hash (username);
 -- +goose StatementEnd
 
 -- +goose Down
