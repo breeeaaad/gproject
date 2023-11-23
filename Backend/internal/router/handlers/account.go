@@ -32,7 +32,7 @@ func (h *Handlers) Login(c *gin.Context) {
 		return
 	}
 	c.SetCookie("refresh", refresh, 60*60*24*7, "/main", "localhost", false, true)
-	c.JSON(200, gin.H{"access": access})
+	c.SetCookie("access", access, 60*60*24*7, "/main", "localhost", false, true)
 }
 
 func (h *Handlers) Registration(c *gin.Context) {

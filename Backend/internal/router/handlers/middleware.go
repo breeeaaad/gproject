@@ -4,14 +4,13 @@ import (
 	"time"
 
 	"github.com/breeeaaad/gproject/internal/configs"
-	"github.com/breeeaaad/gproject/internal/helpers"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 )
 
 func (h *Handlers) Auth(c *gin.Context) {
-	var access helpers.Request
-	if err := c.BindJSON(&access); err != nil {
+	cookie, err := c.Cookie("access")
+	if err != nil {
 		c.JSON(401, gin.H{"msg": err.Error()})
 		return
 	}
@@ -25,7 +24,7 @@ func (h *Handlers) Auth(c *gin.Context) {
 		c.JSON(401, gin.H{"msg": err.Error()})
 		return
 	}
-	token, err := jwt.Parse(access.Access, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.Parse(cookie, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
 			c.JSON(401, gin.H{"msg": "Unexpected signing method"})
 			return nil, nil
@@ -42,16 +41,14 @@ func (h *Handlers) Auth(c *gin.Context) {
 	}
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if ok {
-		if exp, boo := claims["exp"].(int64); boo {
-			if exp < time.Now().Unix() {
-				c.Set("id", claims["id"].(float64))
-				c.Set("user", claims["user"].(string))
-				c.Set("is_admin", claims["is_admin"].(bool))
-				return
-			}
+		if claims["exp"].(float64) > float64(time.Now().Unix()) {
+			c.Set("id", claims["id"].(float64))
+			c.Set("user", claims["user"].(string))
+			c.Set("is_admin", claims["is_admin"].(bool))
+			return
 		}
 	}
-	cookie, err := c.Cookie("refresh")
+	cookie, err = c.Cookie("refresh")
 	if err != nil {
 		c.JSON(401, gin.H{"msg": err.Error()})
 		return
@@ -72,6 +69,6 @@ func (h *Handlers) Auth(c *gin.Context) {
 			return
 		}
 		c.SetCookie("refresh", refresh, 60*60*24*7, "/main", "localhost", false, true)
-		c.JSON(200, gin.H{"access": access})
+		c.SetCookie("access", access, 60*60*24*7, "/main", "localhost", false, true)
 	}
 }

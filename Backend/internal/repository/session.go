@@ -27,7 +27,7 @@ func (r *Repository) Genjwt(id int, user string, is_admin bool) (string, string,
 		return "", "", err
 	}
 	refresh := uuid.NewString()
-	if _, err := r.conn.Exec(r.context, "insert into Session(user_id,uuid) values($1,$2)", id, refresh); err != nil {
+	if _, err := r.conn.Exec(r.context, "insert into Session(user_id,refresh) values($1,$2)", id, refresh); err != nil {
 		return "", "", err
 	}
 	return access, refresh, nil
