@@ -15,6 +15,7 @@ func Router(h *handlers.Handlers) {
 		{
 			authorized.PUT("/2fa", h.Totp)
 			authorized.DELETE("/:token", h.DeleteTotp)
+			authorized.DELETE("/logout", h.Logout)
 		}
 	}
 	r.Run()

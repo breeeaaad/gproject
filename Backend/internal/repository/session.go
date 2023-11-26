@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"errors"
 	"time"
 
 	"github.com/breeeaaad/gproject/internal/configs"
@@ -33,10 +34,21 @@ func (r *Repository) Genjwt(id int, user string, is_admin bool) (string, string,
 	return access, refresh, nil
 }
 
-func (r *Repository) Refresh(refresh string) (bool, error) {
-	var expiresIn time.Time
-	if err := r.conn.QueryRow(r.context, "select expiresIn from Session where refresh=$1", refresh).Scan(&expiresIn); err != nil {
+func (r *Repository) DelRefresh(refresh string) (bool, error) {
+	if tag, err := r.conn.Exec(r.context, "delete from Session where refresh=$1 and expireIn<now()", refresh); err != nil {
 		return false, err
+	} else if tag.RowsAffected() != 1 {
+		return false, errors.New("No refresh token")
 	}
-	return expiresIn.After(time.Now()), nil
+	return true, nil
+}
+
+func (r *Repository) Refresh(refresh string) (int, string, bool, error) {
+	var (
+		id       int
+		user     string
+		is_admin bool
+	)
+	err := r.conn.QueryRow(r.context, "select Account.id,user,is_admin from Account join Session on Account.id=Session.user_id where refresh=$1", refresh).Scan(&id, &user, &is_admin)
+	return id, user, is_admin, err
 }

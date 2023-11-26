@@ -32,17 +32,29 @@ func (h *Handlers) Login(c *gin.Context) {
 		return
 	}
 	c.SetCookie("refresh", refresh, 60*60*24*7, "/main", "localhost", false, true)
-	c.SetCookie("access", access, 60*60*24*7, "/main", "localhost", false, true)
+	c.SetCookie("access", access, 60*15, "/main", "localhost", false, true)
 }
 
 func (h *Handlers) Registration(c *gin.Context) {
 	var user helpers.Account
 	if err := c.BindJSON(&user); err != nil {
-		c.JSON(400, gin.H{"msg": err})
+		c.JSON(400, gin.H{"msg": err.Error()})
 		return
 	}
 	if err := h.s.Add(user); err != nil {
-		c.JSON(400, gin.H{"msg": err})
+		c.JSON(400, gin.H{"msg": err.Error()})
+		return
+	}
+}
+
+func (h *Handlers) Logout(c *gin.Context) {
+	cookie, err := c.Cookie("refresh")
+	if err != nil {
+		c.JSON(500, gin.H{"msg": err.Error()})
+		return
+	}
+	if err := h.s.Gout(cookie); err != nil {
+		c.JSON(400, gin.H{"msg": err.Error()})
 		return
 	}
 }

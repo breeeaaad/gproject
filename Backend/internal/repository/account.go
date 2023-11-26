@@ -32,3 +32,8 @@ func (r *Repository) Add(user helpers.Account) error {
 	}
 	return nil
 }
+
+func (r *Repository) Gout(refresh string) error {
+	_, err := r.conn.Exec(r.context, "delete from Session where refresh=$1", refresh)
+	return err
+}
