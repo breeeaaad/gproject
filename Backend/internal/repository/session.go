@@ -27,15 +27,15 @@ func (r *Repository) Genjwt(id int, user string, is_admin bool) (string, string,
 	if err != nil {
 		return "", "", err
 	}
-	refresh := uuid.NewString()
-	if _, err := r.conn.Exec(r.context, "insert into Session(user_id,refresh) values($1,$2)", id, refresh); err != nil {
+	var refresh string
+	if err := r.conn.QueryRow(r.context, "insert into Session(user_id) values($1)", id).Scan(&refresh); err != nil {
 		return "", "", err
 	}
 	return access, refresh, nil
 }
 
 func (r *Repository) DelRefresh(refresh string) (bool, error) {
-	if tag, err := r.conn.Exec(r.context, "delete from Session where refresh=$1 and expireIn<now()", refresh); err != nil {
+	if tag, err := r.conn.Exec(r.context, "delete from Session where refresh=$1 and expiresIn>now()", refresh); err != nil {
 		return false, err
 	} else if tag.RowsAffected() != 1 {
 		return false, errors.New("No refresh token")
@@ -44,11 +44,17 @@ func (r *Repository) DelRefresh(refresh string) (bool, error) {
 }
 
 func (r *Repository) Refresh(refresh string) (int, string, bool, error) {
+	uuid, err := uuid.Parse(refresh)
+	if err != nil {
+		return 0, "", false, err
+	}
 	var (
 		id       int
 		user     string
 		is_admin bool
 	)
-	err := r.conn.QueryRow(r.context, "select Account.id,user,is_admin from Account join Session on Account.id=Session.user_id where refresh=$1", refresh).Scan(&id, &user, &is_admin)
-	return id, user, is_admin, err
+	if err := r.conn.QueryRow(r.context, "select Account.id,user,is_admin from Account join Session on Account.id=Session.user_id where refresh=$1", uuid).Scan(&id, &user, &is_admin); err != nil {
+		return 0, "", false, err
+	}
+	return id, user, is_admin, nil
 }
