@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"github.com/breeeaaad/gproject/internal/helpers"
+	"github.com/breeeaaad/gproject/internal/models"
 	"github.com/gin-gonic/gin"
 	"github.com/xlzd/gotp"
 )
@@ -19,7 +19,7 @@ func (h *Handlers) Totp(c *gin.Context) {
 
 func (h *Handlers) DeleteTotp(c *gin.Context) {
 	if user, exists := c.Get("user"); exists {
-		var token helpers.Totp
+		var token models.Totp
 		if err := c.BindUri(&token); err != nil {
 			c.JSON(400, gin.H{"msg": err.Error()})
 			return

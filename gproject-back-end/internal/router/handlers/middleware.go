@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"errors"
-
 	"github.com/breeeaaad/gproject/internal/configs"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
@@ -49,7 +47,7 @@ func (h *Handlers) Auth(c *gin.Context) {
 	}
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if ok {
-		c.Set("id", claims["id"].(float64))
+		c.Set("id", claims["userId"].(float64))
 		c.Set("user", claims["user"].(string))
 		c.Set("is_admin", claims["is_admin"].(bool))
 	}
@@ -60,18 +58,11 @@ func (h *Handlers) Resetoken(c *gin.Context) error {
 	if err != nil {
 		return err
 	}
-	id, user, is_admin, err := h.s.Refresh(cookie)
+	id, user, is_admin, err := h.c.Reset(cookie)
 	if err != nil {
 		return err
 	}
-	check, err := h.s.DelRefresh(cookie)
-	if err != nil {
-		return err
-	}
-	if !check {
-		return errors.New("Token expired")
-	}
-	access, refresh, err := h.s.Genjwt(id, user, is_admin)
+	access, refresh, err := h.c.Set(id, user, is_admin)
 	if err != nil {
 		return err
 	}

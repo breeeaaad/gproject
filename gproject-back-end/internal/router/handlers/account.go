@@ -3,13 +3,13 @@ package handlers
 import (
 	"time"
 
-	"github.com/breeeaaad/gproject/internal/helpers"
+	"github.com/breeeaaad/gproject/internal/models"
 	"github.com/gin-gonic/gin"
 	"github.com/xlzd/gotp"
 )
 
 func (h *Handlers) Login(c *gin.Context) {
-	var user helpers.Account
+	var user models.Account
 	if err := c.BindJSON(&user); err != nil {
 		c.JSON(400, gin.H{"msg": err.Error()})
 		return
@@ -26,7 +26,7 @@ func (h *Handlers) Login(c *gin.Context) {
 			return
 		}
 	}
-	access, refresh, err := h.s.Genjwt(id, usern, is_admin)
+	access, refresh, err := h.c.Set(id, usern, is_admin)
 	if err != nil {
 		c.JSON(500, gin.H{"msg": err.Error()})
 		return
@@ -36,7 +36,7 @@ func (h *Handlers) Login(c *gin.Context) {
 }
 
 func (h *Handlers) Registration(c *gin.Context) {
-	var user helpers.Account
+	var user models.Account
 	if err := c.BindJSON(&user); err != nil {
 		c.JSON(400, gin.H{"msg": err.Error()})
 		return
@@ -53,8 +53,5 @@ func (h *Handlers) Logout(c *gin.Context) {
 		c.JSON(500, gin.H{"msg": err.Error()})
 		return
 	}
-	if err := h.s.Gout(cookie); err != nil {
-		c.JSON(400, gin.H{"msg": err.Error()})
-		return
-	}
+	h.c.Gout(cookie)
 }

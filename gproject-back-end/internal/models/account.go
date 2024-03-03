@@ -1,4 +1,4 @@
-package helpers
+package models
 
 type Account struct {
 	User     string `json:"user" binding:"required"`

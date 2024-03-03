@@ -1,11 +1,11 @@
 package repository
 
 import (
-	"github.com/breeeaaad/gproject/internal/helpers"
+	"github.com/breeeaaad/gproject/internal/models"
 	"golang.org/x/crypto/bcrypt"
 )
 
-func (r *Repository) Check(user helpers.Account) (int, string, bool, any, error) {
+func (r *Repository) Check(user models.Account) (int, string, bool, any, error) {
 	var (
 		id       int
 		usern    string
@@ -22,7 +22,7 @@ func (r *Repository) Check(user helpers.Account) (int, string, bool, any, error)
 	return id, usern, is_admin, totp, nil
 }
 
-func (r *Repository) Add(user helpers.Account) error {
+func (r *Repository) Add(user models.Account) error {
 	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), 16)
 	if err != nil {
 		return err
@@ -31,9 +31,4 @@ func (r *Repository) Add(user helpers.Account) error {
 		return err
 	}
 	return nil
-}
-
-func (r *Repository) Gout(refresh string) error {
-	_, err := r.conn.Exec(r.context, "delete from Session where refresh=$1", refresh)
-	return err
 }
